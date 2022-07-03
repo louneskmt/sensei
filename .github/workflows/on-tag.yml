@@ -52,15 +52,6 @@ jobs:
           docker buildx build \
           --cache-from "type=local,src=/tmp/.buildx-cache" \
           --cache-to "type=local,dest=/tmp/.buildx-cache" \
-          --platform linux/amd64 \
-          --tag ${{ secrets.DOCKERHUB_USERNAME }}/sensei:$TAG \
-          --output "type=registry" .
-
-      - name: Run Docker buildx against tag for arm64
-        run: |
-          docker buildx build \
-          --cache-from "type=local,src=/tmp/.buildx-cache" \
-          --cache-to "type=local,dest=/tmp/.buildx-cache" \
-          --platform linux/arm64 \
+          --platform linux/amd64,linux/arm64 \
           --tag ${{ secrets.DOCKERHUB_USERNAME }}/sensei:$TAG \
           --output "type=registry" .
