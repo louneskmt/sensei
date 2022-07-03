@@ -14,14 +14,26 @@ FROM rust:1.62 as sensei-prepare
 
 RUN rustup toolchain install nightly --allow-downgrade -c rustfmt
 RUN rustup component add rustfmt --toolchain nightly
+RUN cargo +nightly install --git https://github.com/louneskmt/cargo-chef --branch nightly-unstable -Z sparse-registry
 WORKDIR /build
+
+# we use cargo-chef (https://github.com/LukeMathWalker/cargo-chef) to optimize the build process
+# it allows us to cache the dependencies build process and to use the cache for the next build
+FROM sensei-prepare as sensei-planner
+
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
 # build sensei
 FROM sensei-prepare as sensei-builder
 
+COPY --from=sensei-planner /build/recipe.json recipe.json
+
+# build dependencies
+RUN cargo chef cook --nightly --release --recipe-path recipe.json -Z sparse-registry
+
 # copy source tree
 COPY . .
-
 COPY --from=web-admin-builder /build/web-admin/build/ /build/web-admin/build/
 
 # we have to use sparse-registry nightly cargo feature to avoid running out of RAM:
