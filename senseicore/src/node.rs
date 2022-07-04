@@ -1150,7 +1150,7 @@ impl LightningNode {
                 HTLCStatus::Pending
             }
             Err(PaymentError::Invoice(e)) => {
-                println!("ERROR: invalid invoice: {}", e);
+                println!("ERROR: invalid invoic: {}", e);
                 return Err(PaymentError::Invoice(e).into());
             }
             Err(PaymentError::Routing(e)) => {
